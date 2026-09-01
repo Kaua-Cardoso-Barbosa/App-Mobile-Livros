@@ -24,6 +24,15 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Permita que o Livraria use o Face ID para confirmar sua identidade."
+        }
+      ],
+      "expo-secure-store"
+    ]
   }
 }

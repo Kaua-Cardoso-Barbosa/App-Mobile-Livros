@@ -1,10 +1,10 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-export default function BarraInferior({ ativa, navigation, tema, darkMode, aoAlternarTema }) {
+export default function BarraInferior({ ativa, navigation, tema }) {
   const itens = [
-    { chave: "Home", rotulo: "Inicio", icone: "⌂" },
-    { chave: "Favoritos", rotulo: "Favoritos", icone: "♡" },
-    { chave: "Login", rotulo: "Entrar", icone: "◉" },
+    { chave: "Home", rotulo: "Inicio", icone: "H" },
+    { chave: "Favoritos", rotulo: "Favoritos", icone: "F" },
+    { chave: "Usuarios", rotulo: "Usuarios", icone: "U" },
   ];
 
   return (
@@ -27,11 +27,6 @@ export default function BarraInferior({ ativa, navigation, tema, darkMode, aoAlt
           </Pressable>
         );
       })}
-
-      <Pressable style={estilos.item} onPress={aoAlternarTema}>
-        <Text style={[estilos.icone, { color: tema.muted }]}>{darkMode ? "☀" : "☾"}</Text>
-        <Text style={[estilos.rotulo, { color: tema.muted }]}>Tema</Text>
-      </Pressable>
     </View>
   );
 }
@@ -46,14 +41,14 @@ const estilos = StyleSheet.create({
     paddingBottom: 8,
   },
   item: {
-    width: 82,
+    width: 96,
     height: 58,
     alignItems: "center",
     justifyContent: "center",
     gap: 2,
   },
   icone: {
-    fontSize: 24,
+    fontSize: 22,
     lineHeight: 26,
     fontWeight: "900",
   },

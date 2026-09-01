@@ -1,29 +1,35 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { FlatList, Pressable, SafeAreaView, StyleSheet, Text, View } from "react-native";
 import BarraInferior from "../components/BarraInferior";
 import BarraPesquisa from "../components/BarraPesquisa";
 import CartaoLivro from "../components/CartaoLivro";
-import ControlesOrdenacao from "../components/ControlesOrdenacao";
 import EstadoFeedback from "../components/EstadoFeedback";
 import FiltroCategorias from "../components/FiltroCategorias";
-import { buscarCategorias, pesquisarLivros, precoLivro } from "../services/livrosApi";
+import { buscarCategorias, pesquisarLivros } from "../services/livrosApi";
 
 export default function Home({
+  route,
   navigation,
   favoritos,
   alternarFavorito,
   tema,
-  darkMode,
-  alternarTema,
+  onLogout,
 }) {
   const [livros, setLivros] = useState([]);
   const [categorias, setCategorias] = useState(["Todos"]);
   const [busca, setBusca] = useState("");
   const [categoria, setCategoria] = useState("Todos");
-  const [ordenacao, setOrdenacao] = useState("az");
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
   const [atualizacao, setAtualizacao] = useState(0);
+
+  useEffect(() => {
+    if (route.params?.atualizarEm) {
+      setCategoria("Todos");
+      setBusca("");
+      setAtualizacao((valor) => valor + 1);
+    }
+  }, [route.params?.atualizarEm]);
 
   useEffect(() => {
     let ativo = true;
@@ -75,20 +81,6 @@ export default function Home({
     };
   }, [busca, categoria, atualizacao]);
 
-  const livrosOrdenados = useMemo(() => {
-    return [...livros].sort((a, b) => {
-      if (ordenacao === "preco-menor") {
-        return precoLivro(a) - precoLivro(b);
-      }
-
-      if (ordenacao === "preco-maior") {
-        return precoLivro(b) - precoLivro(a);
-      }
-
-      return a.titulo.localeCompare(b.titulo, "pt-BR");
-    });
-  }, [livros, ordenacao]);
-
   function atualizar() {
     setAtualizacao((valor) => valor + 1);
   }
@@ -107,16 +99,16 @@ export default function Home({
           </View>
           <View style={styles.headerActions}>
             <Pressable
-              style={[styles.loginButton, { backgroundColor: tema.primary }]}
-              onPress={() => navigation.navigate("Login")}
+              style={[styles.createButton, { backgroundColor: tema.primary }]}
+              onPress={() => navigation.navigate("LivroForm")}
             >
-              <Text style={styles.loginText}>Entrar</Text>
+              <Text style={styles.createButtonText}>+ Livro</Text>
             </Pressable>
             <Pressable
-              style={[styles.refresh, { backgroundColor: tema.surface, borderColor: tema.border }]}
-              onPress={atualizar}
+              style={[styles.logoutButton, { borderColor: tema.border, backgroundColor: tema.surface }]}
+              onPress={onLogout}
             >
-              <Text style={[styles.refreshText, { color: tema.primary }]}>↻</Text>
+              <Text style={[styles.logoutText, { color: tema.muted }]}>Sair</Text>
             </Pressable>
           </View>
         </View>
@@ -135,11 +127,9 @@ export default function Home({
           tema={tema}
         />
 
-        <ControlesOrdenacao valor={ordenacao} aoMudar={setOrdenacao} tema={tema} />
-
         <View style={styles.sectionHeader}>
           <Text style={[styles.sectionTitle, { color: tema.text }]}>Livros disponiveis</Text>
-          <Text style={[styles.total, { color: tema.muted }]}>{livrosOrdenados.length} itens</Text>
+          <Text style={[styles.total, { color: tema.muted }]}>{livros.length} itens</Text>
         </View>
 
         {carregando ? (
@@ -148,7 +138,7 @@ export default function Home({
           <EstadoFeedback tipo="erro" mensagem={erro} aoTentarNovamente={atualizar} tema={tema} />
         ) : (
           <FlatList
-            data={livrosOrdenados}
+            data={livros}
             keyExtractor={(item) => String(item.id)}
             numColumns={2}
             columnWrapperStyle={styles.columns}
@@ -173,13 +163,7 @@ export default function Home({
           />
         )}
       </View>
-      <BarraInferior
-        ativa="Home"
-        navigation={navigation}
-        tema={tema}
-        darkMode={darkMode}
-        aoAlternarTema={alternarTema}
-      />
+      <BarraInferior ativa="Home" navigation={navigation} tema={tema} />
     </SafeAreaView>
   );
 }
@@ -210,33 +194,31 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   headerActions: {
-    flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-end",
     gap: 8,
   },
-  loginButton: {
+  createButton: {
     height: 42,
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 14,
   },
-  loginText: {
+  createButtonText: {
     color: "#FFFFFF",
     fontSize: 13,
     fontWeight: "900",
   },
-  refresh: {
-    width: 46,
-    height: 46,
+  logoutButton: {
+    height: 34,
     borderRadius: 8,
     borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
+    paddingHorizontal: 14,
   },
-  refreshText: {
-    fontSize: 28,
-    lineHeight: 30,
+  logoutText: {
+    fontSize: 12,
     fontWeight: "900",
   },
   sectionHeader: {

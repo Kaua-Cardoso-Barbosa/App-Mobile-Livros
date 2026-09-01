@@ -1,18 +1,37 @@
+import { getToken } from "./usuario/usuarioStorage";
+
 const API_URL = "https://apps-api-livros.ucxocw.easypanel.host";
 
-async function request(path) {
-  const resposta = await fetch(`${API_URL}${path}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+async function request(path, opcoes = {}) {
+  const headers = {
+    "Content-Type": "application/json",
+    ...(opcoes.headers || {}),
+  };
 
-  if (!resposta.ok) {
-    throw new Error("Nao foi possivel acessar a API.");
+  if (opcoes.autenticado) {
+    const token = await getToken();
+
+    if (!token) {
+      throw new Error("Voce precisa estar logado para fazer essa acao.");
+    }
+
+    headers.Authorization = `Bearer ${token}`;
   }
 
-  return resposta.json();
+  const resposta = await fetch(`${API_URL}${path}`, {
+    method: opcoes.method || "GET",
+    headers,
+    body: opcoes.body ? JSON.stringify(opcoes.body) : undefined,
+  });
+
+  const texto = await resposta.text();
+  const dados = texto ? JSON.parse(texto) : {};
+
+  if (!resposta.ok) {
+    throw new Error(dados.mensagem || "Nao foi possivel acessar a API.");
+  }
+
+  return dados;
 }
 
 function montarQuery(parametros = {}) {
@@ -57,6 +76,33 @@ export async function pesquisarLivros(termo = "", categoria = "Todos") {
 export async function buscarCategorias() {
   const dados = await request("/categorias");
   return ["Todos", ...(dados.categorias || [])];
+}
+
+export async function criarLivro(livro) {
+  const dados = await request("/livros", {
+    method: "POST",
+    autenticado: true,
+    body: livro,
+  });
+
+  return dados.livro;
+}
+
+export async function editarLivro(id, livro) {
+  const dados = await request(`/livros/${id}`, {
+    method: "PUT",
+    autenticado: true,
+    body: livro,
+  });
+
+  return dados.livro;
+}
+
+export async function excluirLivro(id) {
+  await request(`/livros/${id}`, {
+    method: "DELETE",
+    autenticado: true,
+  });
 }
 
 export function precoLivro(livro) {

@@ -8,8 +8,6 @@ export default function Favoritos({
   favoritos,
   alternarFavorito,
   tema,
-  darkMode,
-  alternarTema,
 }) {
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: tema.background }]}>
@@ -52,8 +50,6 @@ export default function Favoritos({
         ativa="Favoritos"
         navigation={navigation}
         tema={tema}
-        darkMode={darkMode}
-        aoAlternarTema={alternarTema}
       />
     </SafeAreaView>
   );

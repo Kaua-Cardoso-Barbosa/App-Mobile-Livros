@@ -35,14 +35,20 @@ export default function FiltroCategorias({ categorias, selecionada, aoSelecionar
 
 const estilos = StyleSheet.create({
   container: {
+    height: 52,
+    maxHeight: 52,
     marginTop: 4,
+    marginBottom: 4,
+    flexGrow: 0,
   },
   lista: {
+    alignItems: "center",
     gap: 8,
-    paddingVertical: 4,
+    paddingVertical: 6,
+    paddingRight: 2,
   },
   chip: {
-    minHeight: 36,
+    height: 38,
     borderRadius: 18,
     borderWidth: 1,
     paddingHorizontal: 14,
